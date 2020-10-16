@@ -4,12 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
     <title>Transfer</title>
 </head>
 
 <body>
-
-    <script src="./view.js"></script>
+    <h1>Hello,World!</h1>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" required />
+        <button type="submit">立即上传</button>
+    </form>
 </body>
 
 </html>
