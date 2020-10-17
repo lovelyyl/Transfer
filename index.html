@@ -1,19 +1,40 @@
 <!DOCTYPE html>
 <html lang="zh-hans-cn">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
     <title>Transfer</title>
-</head>
+  </head>
 
-<body>
+  <body style="text-align: center">
     <h1>Hello,World!</h1>
-    <form action="/upload" method="POST" enctype="multipart/form-data">
-        <input type="file" name="file" required />
-        <button type="submit">立即上传</button>
-    </form>
-</body>
+    <input type="file" multiple />
+    <div id="tip" style="text-align: center">选择文件开始上传</div>
+    <script>
+      function uploadFile(file) {
+        const form_data = new FormData();
+        form_data.append('file', file);
+        return fetch('/upload', { method: 'POST', body: form_data });
+      }
+      const tip = document.getElementById('tip');
 
+      function startDownload() {
+        tip.style.color = 'blue';
+        tip.textContent = '正在上传.....';
+      }
+
+      function endDownload() {
+        tip.textContent = '上传完成';
+      }
+
+      document.querySelector('input[type="file"]').addEventListener('change', async e => {
+        const files = Array.from(e.target.files);
+
+        startDownload();
+        await Promise.all(files.map(uploadFile));
+        endDownload();
+      });
+    </script>
+  </body>
 </html>

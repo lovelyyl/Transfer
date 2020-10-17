@@ -22,8 +22,6 @@ function createDownloadDir() {
     .catch(() => console.log('下载目录已经存在，无需创建'));
 }
 
-createDownloadDir();
-
 const server = createServer(async function (req, res) {
   const { url } = req;
   if (url === '/') {
@@ -42,25 +40,27 @@ const server = createServer(async function (req, res) {
       .replace(/-/g, '');
     let data = '';
     req
-      .on('data', (chunk) => (data += chunk))
+      .on('data', chunk => (data += chunk))
       .once('end', async () => {
         const dataList = data.split(new RegExp('------' + boundary + '(?:--)?' + '\r\n'));
         const fileNameReg = /.*?filename="(.*?)"[\s\S]*/;
         for (let i = 1; i < dataList.length - 1; i++) {
-          const [metaInfo, content] = dataList[i].split('\r\n\r\n');
-          await writeFile(`./download/${metaInfo.match(fileNameReg)[1]}`, content.slice(0, -2), {
+          const indexOfContent = dataList[i].indexOf('\r\n\r\n');
+          const metaInfo = dataList[i].slice(0, indexOfContent);
+          const content = dataList[i].slice(indexOfContent + 4, -2);
+          createDownloadDir();
+          const file_name = Buffer.from(metaInfo.match(fileNameReg)[1], 'binary').toString('utf-8');
+          await writeFile(`./download/${file_name}`, content, {
             encoding: 'binary',
           });
-          console.log('成功写入文件一个:', metaInfo.match(fileNameReg)[1]);
+          console.log('成功写入文件一个:', file_name);
         }
       });
-    res.statusCode = 302;
-    res.setHeader('Location', '/');
-    res.end();
+    res.end('');
   }
 });
 
-server.listen(3000);
+server.listen(3000, '0.0.0.0');
 
 console.log(`服务已启动:
 http://${getHostIp()}:3000
